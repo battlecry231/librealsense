@@ -3,7 +3,7 @@ lib/
 
 ubuntu-xenial/
 ubuntu-xenial-hwe/
-
+ubuntu-cosmic*
 # Docs
 doc/doxygen/html/
 *.html.lnk

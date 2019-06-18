@@ -34,6 +34,11 @@ function require_package {
 #	master		UBUNTU: Ubuntu-4.15.0-23.25					Stefan Bader					4 weeks
 #	master-next	ixgbe/ixgbevf: Free IRQ when PCI error recovery removes the device	Mauro S M Rodrigues	2 days
 
+#Ubuntu cosmic repo : http://kernel.ubuntu.com/git/ubuntu/ubuntu-cosmic.git/
+#	master		UBUNTU: Ubuntu-4.18.0-22.23	Marcelo Henrique Cerri	2 weeks
+#	master-next	UBUNTU: Ubuntu-4.18.0-23.24	Stefan Bader			6 days
+# 	tag			UBUNTU: Ubuntu-4.18.0-21.22	Stefan Bader			5 weeks
+
 function choose_kernel_branch {
 
 	# Split the kernel version string
@@ -63,13 +68,8 @@ function choose_kernel_branch {
 			exit 1
 			;;
 		esac
-	else
-		if [ "$2" != "bionic" ];
-		then
-			echo -e "\e[31mUnsupported distribution $2 kernel version $1 . The patches are maintained for Ubuntu LTS bionic/xenial with kernel versions 4.4, 4.8, 4.10 and 4.15 only\e[0m" >&2
-			exit 1
-		fi
-
+	elif [ "$2" = "bionic" ];
+	then
 		case "${kernel_version[1]}" in
 		"15")								 	# kernel 4.15 for Ubuntu 18/Bionic Beaver
 			echo master
@@ -80,6 +80,25 @@ function choose_kernel_branch {
 			exit 1
 			;;
 		esac
+	elif [ "$2" = "cosmic" ];
+	then
+		case "${kernel_version[1]}" in
+		"18")									# Kernel 4.18.0-21-generic is managed on branch Ubuntu-4.18.0-21.22
+			echo Ubuntu-4.18.0-21.22
+			;;
+		"19")								 	# kernel 4.19
+			echo -e "\e[31mUnsupported kernel version $1 .\e[0m" >&2
+			exit 1
+			;;
+		*)
+			#error message shall be redirected to stderr to be printed properly
+			echo -e "\e[31mUnsupported kernel version $1 . The patches are maintained for Ubuntu LTS with kernel versions 4.4, 4.8, 4.10 and 4.13 only\e[0m" >&2
+			exit 1
+			;;
+		esac
+	else
+		echo -e "\e[31mUnsupported distribution $2 kernel version $1 .\e[0m" >&2
+		exit 1
 	fi
 }
 
@@ -133,6 +152,9 @@ function try_module_insert {
 		if [ ! -z "$dependencies" ];
 		then
 			printf "\e[32m\tModule \e[93m\e[1m%s \e[32m\e[21m is used by \e[34m$dependencies\n\e[0m" ${module_name}
+		fi
+		if echo $dependencies | grep -w uvcvideo > /dev/null; then
+			try_unload_module uvcvideo
 		fi
 		while [ ! -z "$dependent_module" ]
 		do
