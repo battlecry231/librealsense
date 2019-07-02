@@ -5,7 +5,7 @@ set -e
 
 #trap read debug
 
-echo -e "\e[36mDevelopment script for kernel 4.16 with metadata node\e[0m"
+echo -e "\e[36mDevelopment script for kernel 4.18 with metadata node\e[0m"
 
 #Locally suppress stderr to avoid raising not relevant messages
 exec 3>&2
